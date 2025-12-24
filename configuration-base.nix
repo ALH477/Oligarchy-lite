@@ -19,7 +19,6 @@
   custom.firewall.mode = "disabled";
   custom.webserver.mode = "none";
   custom.python.enable = false;
-  custom.openwebui.enable = false;
 
     # Local AI service
     services.ollamaAgentic = {

@@ -22,7 +22,7 @@
 
     # Local AI service
     services.ollamaAgentic = {
-      enable = true;
+      enable = false;
       preset = "heroic";
       acceleration = "vulkan";
       # advanced.rocm.gfxVersionOverride = "11.0.2";

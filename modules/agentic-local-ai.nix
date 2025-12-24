@@ -24,7 +24,16 @@ let
       maxQueue = 128;
       memoryPressure = "0.90";
     };
-    
+
+    heroic = {
+      shmSize = "4gb";
+      numParallel = 1;
+      maxLoadedModels = 1;
+      keepAlive = "4h";
+      maxQueue = 64;
+      memoryPressure = "0.85";
+    };
+
     default = {
       shmSize = "16gb";
       numParallel = 4;

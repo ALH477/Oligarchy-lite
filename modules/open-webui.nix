@@ -23,7 +23,7 @@ in
 
   config = lib.mkIf cfg.enable {
     services.ollama.enable = true;
-    services.ollama.acceleration = lib.mkIf cfg.ollamaAccelerate "cuda";
+    services.ollama.acceleration = lib.mkIf cfg.ollamaAccelerate "vulkan";
     services.ollama.host = "0.0.0.0";
 
     systemd.services.openwebui = {

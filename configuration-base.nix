@@ -8,7 +8,7 @@
     ./modules/firewall.nix
     ./modules/webserver.nix
     ./modules/python.nix
-    ./modules/open-webui.nix
+    ./modules/agentic-local-ai.nix
     home-manager.nixosModules.home-manager
   ];
 

@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo -e "\n\033[1;36mOligarchy NixOS Lite – Profile selector\033[0m"
+echo "Available configurations:"
+
+# List all nixosConfigurations
+nix eval --raw .#nixosConfigurations --apply 'builtins.attrNames' 2>/dev/null \
+  | tr -d '[]"' | tr ' ' '\n' | nl -w2 -s' • '
+
+echo ""
+read -p "Enter number or name (or q to quit): " choice
+
+if [[ "$choice" == "q" ]] || [[ "$choice" == "Q" ]]; then
+  exit 0
+fi
+
+# Try to map number → name
+if [[ "$choice" =~ ^[0-9]+$ ]]; then
+  name=$(nix eval --raw .#nixosConfigurations --apply 'builtins.attrNames' 2>/dev/null \
+    | tr -d '[]"' | awk -v n="$choice" 'NR==n {print $1}' | tr -d ' ')
+else
+  name="$choice"
+fi
+
+if [[ -z "$name" ]] || ! nix eval .#nixosConfigurations."$name" --json >/dev/null 2>&1; then
+  echo -e "\033[1;31mError: Profile '$name' not found\033[0m"
+  exit 1
+fi
+
+echo -e "\nSelected → \033[1;32m$name\033[0m"
+echo "What do you want to do?"
+echo "  [1] Dry-run evaluation"
+echo "  [2] Build (toplevel)"
+echo "  [3] Build & boot VM"
+echo "  [4] nixos-rebuild switch (sudo!)"
+read -p "Choice [1-4]: " action
+
+case "$action" in
+  1) nix run .#dry-run-"$name" ;;
+  2) nix run .#build-"$name" ;;
+  3) nix run .#vm-"$name" ;;
+  4) nix run .#switch-"$name" ;;
+  *) echo "Invalid choice"; exit 1 ;;
+esac

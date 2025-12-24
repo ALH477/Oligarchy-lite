@@ -44,7 +44,7 @@ The system emphasizes **zero bloat**, **offline-first operation**, and **toddler
 - **Firewall** — disabled (default), basic (established/related), strict (drop-all)
 - **Web server** — none (default), nginx, caddy (auto-HTTPS), python http.server
 - **Python environment** — enhanced with requests, flask, pyserial, pyusb, zeroconf, etc.
-- **Open WebUI + Ollama** — self-hosted LLM chat interface (CPU mode default)
+- **Open WebUI/Alpaca/OTERM + Ollama** — self-hosted LLM chat interface (CPU mode default) and containerized
 - **Gaming terminal** (x86_64 & aarch64 only) — OpenGL welcome screen, X11 + xterm + 16+ open-source games
 
 ## Hardware Compatibility & Requirements

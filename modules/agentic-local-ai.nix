@@ -275,6 +275,8 @@ in
     environment.systemPackages = with pkgs; [
       docker
       docker-compose
+      oterm
+      alpaca
       aiStackScript
     ] ++ optionals (effectiveAcceleration == "rocm") [
       rocmPackages.rocm-smi

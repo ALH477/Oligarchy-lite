@@ -21,14 +21,13 @@
   custom.python.enable = false;
   custom.openwebui.enable = false;
 
-# local ai
-  heroic = {
-      shmSize = "4gb";
-      numParallel = 1;
-      maxLoadedModels = 1;
-      keepAlive = "4h";
-      maxQueue = 64;
-      memoryPressure = "0.85";
+    # Local AI service
+    services.ollamaAgentic = {
+      enable = true;
+      preset = "heroic";
+      acceleration = "vulkan";
+      # advanced.rocm.gfxVersionOverride = "11.0.2";
+    models = { "qwen3:0.6b-instruct-q5_K_M" "llama3.2:1b-instruct-q5_K_M" };
     };
 
   # VM guest support

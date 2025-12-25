@@ -1,5 +1,7 @@
 # Oligarchy NixOS Lite
 
+![](https://github.com/ALH477/Oligarchy-lite/blob/main/modules/assets/1766653327186.jpg)
+
 **Ultra-minimal, declarative NixOS distribution optimized for single/dual-core legacy hardware, virtual machines, ARM boards (aarch64), and emerging RISC-V systems.**
 
 Copyright © 2025 DeMoD LLC  

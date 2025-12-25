@@ -1,4 +1,4 @@
-# Oligarchy NixOS Lite
+# Oligarchy-Lite NixOS 
 
 ![](https://github.com/ALH477/Oligarchy-lite/blob/main/modules/assets/1766653327186.jpg)
 

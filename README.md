@@ -71,6 +71,60 @@ Oligarchy-Lite is a stripped-down, reproducible NixOS configuration designed to:
 * **Prospector Launcher**
   Console menu with large ASCII art—readable on tired eyes and old panels.
 
+This section provides a technical overview of the **DeMoD Distributed Computing Framework (DCF)** integration. It highlights how the custom-built modules and containerized networking engine transform each system into a high-performance node for the global mesh.
+
+---
+
+## Mesh Networking: DeMoD DCF Integration
+
+Every Oligarchy-Lite holdfast is equipped to serve as a voluntary pillar of the **DeMoD Distributed Computing Framework (DCF)**. This integration utilizes the custom `dcf-rs` engine to contribute bandwidth and compute power to a global, low-latency HydraMesh network.
+
+### The DCF-SDK Community Node
+
+The networking module manages a production-hardened, declarative OCI container that runs the `alh477/dcf-rs` image. This node is engineered for high-frequency, real-time workloads such as gaming and distributed processing.
+
+### Hardened Performance Engineering
+
+To ensure the required **125 Hz processing loop** remains stable even on legacy iron or low-tier cloud instances, the module implements several "Hardened Hold" optimizations:
+
+* 
+**Logic-Core Pinning**: The node is strictly bound to Core 0 (`--cpuset-cpus=0`) to eliminate context-switching overhead and cache misses.
+
+
+* 
+**Real-Time Priority**: The container is granted `SYS_NICE` capabilities and set to a `rtprio` of 99, allowing it to supersede standard background tasks for mesh-traffic processing.
+
+
+* 
+**Memory Sovereignty**: Utilizing `IPC_LOCK` and setting `memlock` to unlimited (`-1`), the module prevents the mesh-logic from being swapped to disk, maintaining sub-millisecond response times.
+
+
+* 
+**Raw Vox-Link**: The node utilizes `NET_RAW` to bypass standard networking overhead, facilitating direct mesh-packet handling.
+
+
+
+### Declarative Mesh Configuration
+
+The networking module maintains the integrity of the mesh through fully declarative configuration management:
+
+* 
+**Dynamic Config Generation**: The `dcf_config.toml` is forged during system activation, injecting the unique `nodeId` into a read-only environment.
+
+
+* 
+**Automated Perimeter Defense**: When enabled, the system automatically adjusts the firewall to permit traffic on **UDP 7777** (Mesh Data) and **TCP 50051** (gRPC Control).
+
+
+* 
+**Self-Healing Logic**: A dedicated systemd unit monitors the `docker-dcf-sdk` service, enforcing a 10-second restart policy to ensure the hold remains connected to the Ancestors.
+
+
+
+### Deployment
+
+To join the mesh, register your node at [dcf.demod.ltd/register](https://dcf.demod.ltd/register) (WIP) and update your `configuration-base.nix` with your assigned ID.
+
 ---
 
 ##  Build Profiles (The Kindred List)

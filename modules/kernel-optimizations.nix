@@ -1,8 +1,8 @@
 # modules/kernel-optimizations.nix
 { config, pkgs, lib, ... }: {
   boot.kernelPackages = lib.mkMerge [
-    (lib.mkIf (pkgs.stdenv.isx86_64) pkgs.linuxPackages_zen)
-    (lib.mkIf (!pkgs.stdenv.isx86_64) pkgs.linuxPackages_latest)
+    (lib.mkIf (pkgs.stdenv.hostPlatform.isx86_64) pkgs.linuxPackages_zen)
+    (lib.mkIf (!pkgs.stdenv.hostPlatform.isx86_64) pkgs.linuxPackages_latest)
   ];
 
   boot.kernelParams = [
@@ -14,7 +14,7 @@
     "rd.systemd.show_status=auto"
     "cpufreq.default_governor=performance"
     "iomem=relaxed"
-  ] ++ lib.optionals pkgs.stdenv.isx86_64 [
+  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 [
     "nmi_watchdog=0"
     "processor.max_cstate=1"
   ];
@@ -31,5 +31,6 @@
     "fs.file-max" = 2097152;
   };
 
-  powerManagement.cpuFreqGovernor = lib.mkIf (!pkgs.stdenv.isRiscv) "performance";
+  # FIXED: Use hostPlatform.isRiscV (Capital V)
+  powerManagement.cpuFreqGovernor = lib.mkIf (!pkgs.stdenv.hostPlatform.isRiscV) "performance";
 }

@@ -4,9 +4,10 @@ with lib;
 
 let
   cfg = config.services.ollamaAgentic;
-  userName = "asher";
+  # WARNING: Hardcoded user "asher" - ensure this matches your system user
+  userName = "asher"; 
   userHome = config.users.users.${userName}.home or "/home/${userName}";
-  
+
   # Centralized paths
   paths = {
     base = "${userHome}/.config/ollama-agentic/ai-stack";
@@ -14,7 +15,7 @@ let
     state = "${userHome}/.config/ollama-agentic/ai-stack/.state";
   };
 
-  # Preset configurations for different hardware profiles
+  # Preset configurations
   presetConfigs = {
     cpu-fallback = {
       shmSize = "8gb";
@@ -24,7 +25,6 @@ let
       maxQueue = 128;
       memoryPressure = "0.90";
     };
-
     heroic = {
       shmSize = "4gb";
       numParallel = 1;
@@ -33,7 +33,6 @@ let
       maxQueue = 64;
       memoryPressure = "0.85";
     };
-
     default = {
       shmSize = "16gb";
       numParallel = 4;
@@ -42,7 +41,6 @@ let
       maxQueue = 512;
       memoryPressure = "0.85";
     };
-    
     high-vram = {
       shmSize = "32gb";
       numParallel = 8;
@@ -51,7 +49,6 @@ let
       maxQueue = 1024;
       memoryPressure = "0.80";
     };
-    
     rocm-multi = {
       shmSize = "48gb";
       numParallel = 12;
@@ -60,7 +57,6 @@ let
       maxQueue = 2048;
       memoryPressure = "0.75";
     };
-    
     cuda = {
       shmSize = "48gb";
       numParallel = 12;
@@ -69,7 +65,6 @@ let
       maxQueue = 2048;
       memoryPressure = "0.75";
     };
-    
     pewdiepie = {
       shmSize = "64gb";
       numParallel = 16;
@@ -82,26 +77,26 @@ let
 
   currentPreset = presetConfigs.${cfg.preset};
 
-  # Determine acceleration method
+  # Determine acceleration
   effectiveAcceleration =
     if cfg.acceleration != null then cfg.acceleration
     else if cfg.preset == "rocm-multi" then "rocm"
     else if cfg.preset == "cuda" then "cuda"
     else null;
 
-  # Choose appropriate Docker image
+  # Docker image selection
   ollamaImage =
     if effectiveAcceleration == "rocm" then "ollama/ollama:rocm"
     else "ollama/ollama";
 
-  # Build environment variables
+  # ROCm Environment Variables
   rocmEnvVars = optionalString (effectiveAcceleration == "rocm") ''
     ROCR_VISIBLE_DEVICES: "0"
     ${optionalString (cfg.advanced.rocm.gfxVersionOverride != null)
       ''HSA_OVERRIDE_GFX_VERSION: "${cfg.advanced.rocm.gfxVersionOverride}"''}
   '';
 
-  # Generate docker-compose configuration
+  # Docker Compose File
   dockerComposeYml = pkgs.writeText "docker-compose-agentic-ai.yml" ''
     services:
       ollama:
@@ -158,12 +153,22 @@ let
           ${rocmEnvVars}
   '';
 
-  # Management script for the AI stack
+  # Helper script to pull models
+  pullModelsScript = pkgs.writeShellScript "pull-models" ''
+    echo "Waiting for Ollama to be ready..."
+    until curl -s http://${cfg.network.ollamaBindAddress}:11434/api/tags >/dev/null; do
+      sleep 2
+    done
+    echo "Ollama is ready. Pulling models..."
+    ${concatMapStringsSep "\n" (model: "docker exec ollama ollama pull ${model}") cfg.models}
+  '';
+
+  # Main management script
   aiStackScript = pkgs.writeShellScriptBin "ai-stack" ''
     #!/usr/bin/env bash
     set -euo pipefail
 
-    # Colors for output
+    # Colors
     RED='\033[0;31m'
     GREEN='\033[0;32m'
     YELLOW='\033[1;33m'
@@ -182,7 +187,7 @@ let
       exit 1
     fi
 
-    # Ensure directories exist with proper permissions
+    # Ensure directories exist
     mkdir -p "${paths.base}" "${paths.ollama}" "${paths.state}"
     chmod 700 "${paths.ollama}" "${paths.state}"
 
@@ -190,7 +195,6 @@ let
     COMPOSE_FILE="$COMPOSE_DIR/docker-compose.yml"
     cd "$COMPOSE_DIR"
 
-    # Deploy or update docker-compose file
     deploy_compose() {
       if [ ! -f "$COMPOSE_FILE" ] || [ "${dockerComposeYml}" -nt "$COMPOSE_FILE" ]; then
         cp ${dockerComposeYml} "$COMPOSE_FILE"
@@ -198,34 +202,33 @@ let
       fi
     }
 
-    # Command routing
     case "''${1:-}" in
       start|up)
         deploy_compose
         docker compose up -d
         success "Ollama running at http://${cfg.network.ollamaBindAddress}:11434"
+        # Optional: Auto-pull models if list is not empty
+        if [ "${toString (length cfg.models)}" -gt "0" ]; then
+           info "Pulling configured models..."
+           ${pullModelsScript}
+        fi
         ;;
-        
       stop|down)
         docker compose down
         success "Ollama stopped"
         ;;
-        
       restart)
         docker compose down
         deploy_compose
         docker compose up -d
         success "Ollama restarted"
         ;;
-        
       status)
         docker compose ps
         ;;
-        
       logs)
         docker compose logs -f ollama
         ;;
-        
       *)
         echo "Usage: ai-stack {start|stop|restart|status|logs}"
         exit 1
@@ -237,7 +240,7 @@ in
 {
   options.services.ollamaAgentic = {
     enable = mkEnableOption "Ollama local AI stack";
-
+    
     preset = mkOption {
       type = types.enum [ "cpu-fallback" "default" "high-vram" "rocm-multi" "cuda" "pewdiepie" ];
       default = "default";
@@ -248,6 +251,13 @@ in
       type = types.nullOr (types.enum [ "cuda" "rocm" ]);
       default = null;
       description = "GPU acceleration method (auto-detected from preset if not specified)";
+    };
+
+    # ---> THIS IS THE MISSING PART YOU NEEDED <---
+    models = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = "List of LLM models to auto-pull on startup";
     };
 
     network.ollamaBindAddress = mkOption {
@@ -266,7 +276,7 @@ in
 
   config = mkIf cfg.enable {
     virtualisation.docker.enable = true;
-
+    
     # Add user to necessary groups
     users.users.${userName}.extraGroups = [ "docker" ] 
       ++ optionals (effectiveAcceleration == "rocm") [ "video" ];

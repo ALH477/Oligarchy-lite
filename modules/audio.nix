@@ -1,4 +1,3 @@
-# modules/audio.nix
 { config, lib, pkgs, ... }:
 
 let
@@ -7,40 +6,44 @@ in
 {
   options.custom.audio = {
     backend = lib.mkOption {
-      type = lib.types.enum [ "alsa" "jack" "pipewire" ];
-      default = "alsa";
-    };
-    lowLatency = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
+      type = lib.types.enum [ "alsa" "pulseaudio" "pipewire" "none" ];
+      default = "pipewire";
+      description = "Audio backend to use";
     };
   };
 
   config = lib.mkMerge [
-    {
-      sound.enable = true;
-      hardware.pulseaudio.enable = false;
-    }
-
+    # 1. ALSA (Minimal)
     (lib.mkIf (cfg.backend == "alsa") {
       services.pipewire.enable = false;
-      services.jack.enable = false;
+      services.pulseaudio.enable = false;
+      environment.systemPackages = [ pkgs.alsa-utils ];
     })
 
-    (lib.mkIf (cfg.backend == "jack") {
-      services.jack.jackd.enable = true;
-      services.jack.jackd.extraOptions = lib.optional cfg.lowLatency [ "-P" "95" "-r" ];
-      security.rtkit.enable = true;
-      users.users.user.extraGroups = [ "audio" "jackaudio" ];
+    # 2. PulseAudio (Legacy)
+    (lib.mkIf (cfg.backend == "pulseaudio") {
+      services.pipewire.enable = false;
+      services.pulseaudio.enable = true;
+      services.pulseaudio.support32Bit = true;
+      hardware.pulseaudio.package = pkgs.pulseaudioFull;
     })
 
+    # 3. PipeWire (Modern Standard)
     (lib.mkIf (cfg.backend == "pipewire") {
-      services.pipewire.enable = true;
-      services.pipewire.alsa.enable = true;
-      services.pipewire.alsa.support32Bit = true;
-      services.pipewire.pulse.enable = true;
-      services.pipewire.jack.enable = true;
-      services.pipewire.lowLatency.enable = cfg.lowLatency;
+      security.rtkit.enable = true;
+      services.pipewire = {
+        enable = true;
+        alsa.enable = true;
+        alsa.support32Bit = true;
+        pulse.enable = true;
+        jack.enable = true;
+      };
+    })
+
+    # 4. None (Silent)
+    (lib.mkIf (cfg.backend == "none") {
+      services.pipewire.enable = false;
+      services.pulseaudio.enable = false;
     })
   ];
 }

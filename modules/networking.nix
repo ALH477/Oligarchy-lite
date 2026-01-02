@@ -7,7 +7,7 @@ in
 {
   options.custom.networking.mode = lib.mkOption {
     type = lib.types.enum [ "manual" "wpa" "networkmanager" ];
-    default = "manual";
+    default = "networkmanager";
     description = "Networking mode: manual (offline/lazy), wpa (auto wpa_supplicant), networkmanager (full auto/GUI).";
   };
 

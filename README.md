@@ -1,206 +1,209 @@
-# Oligarchy-Lite NixOS 
+# Oligarchy-Lite NixOS: The Prospector’s OS
 
-![](https://github.com/ALH477/Oligarchy-lite/blob/main/modules/assets/1766653327186.jpg)
+![Oligarchy-Lite Header](https://github.com/ALH477/Oligarchy-lite/blob/main/modules/assets/1766653327186.jpg)
 
-**Ultra-minimal, declarative NixOS distribution optimized for single/dual-core legacy hardware, virtual machines, ARM boards (aarch64), and emerging RISC-V systems.**
+[![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![Docker Pulls: alh477/dcf-rs](https://img.shields.io/docker/pulls/alh477/dcf-rs.svg?logo=docker&style=flat-square)](https://hub.docker.com/r/alh477/dcf-rs)
+[![Platform: x86_64 | aarch64 | riscv64](https://img.shields.io/badge/platform-x86__64%20%7C%20aarch64%20%7C%20riscv64-lightgrey)](./flake.nix)
 
-## License
+Ultra-minimal, declarative NixOS distribution optimized for single/dual-core iron, virtual void-craft, ARM boards (aarch64), and emerging RISC-V holdfasts.
 
-**BSD 3-Clause License**
+## The Guild License and The Ancestors' Due
 
 Copyright © 2025–2026 DeMoD LLC
 
-All Warhammer 40,000 lore, names, and concepts referenced in documentation, flavor text, artwork, or boot messages are © Games Workshop Limited 2000–2026 and are used here without permission for non-commercial, transformative fan expression only. This project is **not** affiliated with, endorsed by, or officially connected to Games Workshop or any of its subsidiaries.
+Vox-Caster Warning: All Warhammer 40,000 lore, Kin slang, and concepts are © Games Workshop Limited 2000–2026. This project is not affiliated with Games Workshop. It is a transformative fan expression—a labor of the Great Guilds.
 
-Licensed under the **BSD 3-Clause License** (see [LICENSE](#license) below).
+Oligarchy NixOS Lite is a stripped-down, reproducible configuration forged to:
 
-Oligarchy NixOS Lite is a highly stripped-down, reproducible NixOS configuration designed to:
+* [cite_start]**Revive Ancestral Iron**: Salvage x86_64 hardware from the Core 2 Duo and Pentium 4 eras[cite: 1].
+* [cite_start]**Void-Craft Ready**: Run as a featherweight guest in VMs like QEMU/KVM and Proxmox[cite: 1].
+* [cite_start]**Kin-Sized SBCs**: A clean base for Raspberry Pi, Pine64, and Orange Pi holdfasts[cite: 1].
+* [cite_start]**Experimental Prospecting**: A starting point for RISC-V development (VisionFive 2, Milk-V)[cite: 1].
 
-- Revive forgotten x86_64 hardware (Core 2 Duo, Pentium 4 64-bit era, etc.)
-- Run efficiently as a lightweight guest in VMs (QEMU/KVM, VirtualBox, Proxmox, etc.)
-- Provide a clean, minimal base for modern ARM64 single-board computers (Raspberry Pi 4/5, Pine64, Orange Pi, etc.)
-- Offer an experimental starting point for RISC-V development boards (VisionFive 2, Milk-V Mars/Pioneer, LicheeRV, SiFive, etc.)
+[cite_start]The system emphasizes zero bloat, offline-first operation, and Kin-simple usability via a high-contrast console menu[cite: 1].
 
-The system emphasizes **zero bloat**, **offline-first operation**, and **toddler-simple usability** via a colorful console menu.
+---
 
-## Features
+## Features of the Hold
 
 ### Core Design Principles
+* [cite_start]**Rationing RAM**: Idle consumption stays between ~50–150 MB in console mode[cite: 1].
+* [cite_start]**Waste Not**: Everything is optional and disabled by default—no excess mass[cite: 1].
+* [cite_start]**Forged in Code**: Pure Nix flakes ensure your system is fully declarative and reproducible[cite: 1].
+* [cite_start]**Multi-Kindred Support**: Architecture-aware for x86_64, aarch64, and riscv64[cite: 1].
+* [cite_start]**Manual Data-Links**: Lazy networking by default (wpa_supplicant)[cite: 1].
+* [cite_start]**Prospector Launcher**: A simplified console menu with large ASCII art for tired eyes[cite: 1].
 
-- Idle RAM consumption: ~50–150 MB (console mode)
-- Everything is optional and disabled by default
-- Pure Nix flakes — fully declarative and reproducible
-- Architecture-aware configuration (x86_64, aarch64, riscv64)
-- Manual/lazy networking by default (wpa_supplicant, NetworkManager optional)
-- Toddler-friendly console launcher with large ASCII art commands
+### Build Profiles (The Kindred List)
+| Profile | System | Primary Use Case | Idle RAM |
+| :--- | :--- | :--- | :--- |
+| `minimal-x86_64` | x86_64-linux | Legacy Iron, void-servers | [cite_start]50–120 MB [cite: 1] |
+| `gaming-x86_64` | x86_64-linux | Retro Gaming Terminal | [cite_start]150–350 MB [cite: 1] |
+| `minimal-aarch64` | aarch64-linux | Raspberry Pi & SBC Holdfasts | [cite_start]60–150 MB [cite: 1] |
+| `minimal-riscv64` | riscv64-linux | VisionFive 2, Milk-V (Experimental) | [cite_start]70–180 MB [cite: 1] |
 
-### Available Build Profiles
+---
 
-| Profile              | System         | Primary Use Case                          | Idle RAM (approx) | Graphical / Gaming | Open WebUI / Ollama |
-|----------------------|----------------|-------------------------------------------|-------------------|---------------------|----------------------|
-| `minimal-x86_64`     | x86_64-linux   | Legacy PCs, virtual machines, servers     | 50–120 MB         | No                  | No                   |
-| `gaming-x86_64`      | x86_64-linux   | Retro & open-source gaming terminal       | 150–350 MB        | Yes (X11)           | Optional             |
-| `minimal-aarch64`    | aarch64-linux  | Raspberry Pi, Pine64, Ampere Altra, etc.  | 60–150 MB         | No                  | No                   |
-| `gaming-aarch64`     | aarch64-linux  | ARM-based gaming / creative workstation   | 180–400 MB        | Yes (native)        | Optional             |
-| `minimal-riscv64`    | riscv64-linux  | VisionFive 2, Milk-V, LicheeRV, etc.      | 70–180 MB         | No                  | Experimental / No    |
+## Hardware Requirements: Is Your Iron Worthy?
 
-### Included Optional Modules
+| Component | Absolute Minimum (Console) | Recommended (Gaming / AI) |
+| :--- | :--- | :--- |
+| **CPU** | [cite_start]Single-core ≥ 1.5 GHz [cite: 1] | [cite_start]Dual-core ≥ 2.0 GHz [cite: 1] |
+| **RAM** | [cite_start]512 MB (Tight Ration) [cite: 1] | [cite_start]2 GB or more [cite: 1] |
+| **Storage** | [cite_start]4 GB [cite: 1] | [cite_start]16 GB+ (For Models/Games) [cite: 1] |
 
-- **Kernel optimizations** — Zen/latest kernel, performance governor, low-latency sysctl
-- **Networking** — manual (default), wpa_supplicant auto, NetworkManager
-- **Audio** — ALSA (default), JACK (pro low-latency), PipeWire
-- **Bluetooth** — basic console support (`bluetoothctl`)
-- **Firewall** — disabled (default), basic (established/related), strict (drop-all)
-- **Web server** — none (default), nginx, caddy (auto-HTTPS), python http.server
-- **Python environment** — enhanced with requests, flask, pyserial, pyusb, zeroconf, etc.
-- **Open WebUI/Alpaca/OTERM + Ollama** — self-hosted LLM chat interface (CPU mode default) and containerized
-- **Gaming terminal** (x86_64 & aarch64 only) — OpenGL welcome screen, X11 + xterm + 16+ open-source games
+[cite_start]**RISC-V Warning**: Many STCs (packages) still fail to compile in late 2025. Stick to the minimal profile for these experimental holds[cite: 1].
 
-## Hardware Compatibility & Requirements
+---
 
-| Component       | Absolute Minimum (console) | Recommended (gaming / Open WebUI) |
-|-----------------|-----------------------------|------------------------------------|
-| CPU             | Single-core ≥ 1.5 GHz       | Dual-core ≥ 2.0 GHz                |
-| RAM             | 512 MB (tight)              | 2 GB or more                       |
-| Storage         | 4 GB                        | 16 GB+ (models, games, data)       |
-| GPU (gaming)    | Not required                | Basic OpenGL 1.1+ support          |
+## Quick Start: Forging Your System
 
-**RISC-V note**: Many packages still fail to build or cross-compile cleanly in late 2025. Use the minimal profile only; gaming and Open WebUI are not reliably supported yet.
-
-## Quick Start
-
-### 1. Clone the repository
-
+### 1. Acquire the STC
 ```bash
-git clone https://github.com/your-org/oligarchy-nixos-lite.git
+git clone [https://github.com/your-org/oligarchy-nixos-lite.git](https://github.com/your-org/oligarchy-nixos-lite.git)
 cd oligarchy-nixos-lite
+
 ```
 
-### 2. Build and switch to your desired profile
+### 2. Ignite the Forge
 
 ```bash
-# Minimal console (recommended starting point)
+# Minimal Console (For the efficient Prospector)
 nixos-rebuild switch --flake .#minimal-x86_64
 
-# Full gaming terminal
+# Full Gaming Terminal (For the off-duty Hearthkyn)
 nixos-rebuild switch --flake .#gaming-x86_64
 
-# ARM64 (e.g. Raspberry Pi 5)
-nixos-rebuild switch --flake .#minimal-aarch64
-
-# RISC-V minimal (VisionFive 2, Milk-V, etc.)
-nixos-rebuild switch --flake .#minimal-riscv64
-```
-
-### 3. Cross-compile RISC-V image from x86_64 / aarch64 host (recommended)
-
-Enable QEMU user-mode emulation once on your build host:
-
-```nix
-# /etc/nixos/configuration.nix or equivalent
-boot.binfmt.emulatedSystems = [ "riscv64-linux" ];
-```
-
-Then generate an SD-card image:
-
-```bash
+# RISC-V SD-Image Generation (For the bold)
 nix build .#nixosConfigurations.minimal-riscv64.config.system.build.sdImage
 
-# Flash to SD card (adjust device!)
-zstdcat result/sd-image/*.img.zst | sudo dd of=/dev/sdX bs=4M status=progress oflag=sync conv=fsync
-sync
 ```
 
-## First Boot Experience
+---
 
-- The system auto-logins to console as user
-- A colorful ASCII-art menu appears automatically
-- Available commands (type and press Enter):
+## The First Boot: The Kin Menu
 
-  ```
-  info     → htop system stats
-  edit     → nvim text editor
-  files    → ranger file browser
-  scan     → list nearby WiFi networks
-  wifi     → connect to WiFi (interactive)
-  disconnect → stop WiFi connection
-  reboot   → restart system
-  off      → power off
-  ```
+The system auto-logins to the console. Use these commands to manage your holdfast:
 
-Gaming profile only:
+* 
+`info`: System Vitals (htop stats).
 
-- Boots into OpenGL welcome screen (ESC to continue)
-- Full-screen green terminal with large game launcher menu
-- Windows-key hotkeys + typed commands launch games instantly
 
-## Enabling Optional Features
+* 
+`edit`: Loom-Scripting (nvim editor).
 
-Edit the target configuration file (e.g. `configuration-base.nix` or a host-specific override) and set module options:
+
+* 
+`files`: Cargo Inventory (ranger browser).
+
+
+* 
+`scan`: Vox-Scanning (WiFi search).
+
+
+* 
+`wifi`: Link-Up (Connect to WiFi).
+
+
+* 
+`reboot`: Cycle the Hold (Restart).
+
+
+* 
+`off`: Seal the Vault (Shutdown).
+
+
+
+---
+
+## Modifying the Hold (Optional Modules)
+
+Edit `configuration-base.nix` to enable Guild-specific tech:
 
 ```nix
-# Example: enable Open WebUI + Python networking + basic firewall
-custom.openwebui.enable     = true;
-custom.python.enable        = true;
-custom.python.networking    = true;
-custom.firewall.mode        = "basic";
-custom.firewall.extraAllowedTCPPorts = [ 8080 5000 ];  # WebUI + Flask
+# Example: Enable the DCF Community Node & AI Hold
+custom.dcfCommunityNode.enable = true;  # Contribute to the Mesh
+services.ollamaAgentic.enable  = false; # Local Cogitator AI (Keep it secret)
+custom.networking.mode         = "manual"; # Kin handle their own links
+
 ```
 
-Rebuild:
+### Included Optional Tech:
 
-```bash
-nixos-rebuild switch --flake .#minimal-x86_64
-```
+* 
+**Kernel Forge**: Zen/latest kernels with performance governors.
 
-## Included Open-Source Games (gaming profiles only)
 
-All titles use fully free content:
+* **DCF Node**: Integrate into the DeMoD Distributed Computing Framework.
+* 
+**Audio Holds**: ALSA (standard), PipeWire, or pro-grade low-latency.
 
-- Doom engine (prboom-plus + freedoom)
-- Zandronum (multiplayer Doom source port)
-- OpenArena (Quake III-style arena shooter)
-- Warfork (fast-paced arena FPS)
-- vkQuake (Quake 1 engine)
-- dhewm3 (Doom 3 engine)
-- SuperTux (classic platformer)
-- Minetest (voxel sandbox)
-- Battle for Wesnoth (turn-based fantasy strategy)
-- OpenTTD (transport tycoon simulation)
-- Hedgewars (Worms-like artillery)
-- Frozen-Bubble (color-matching puzzle)
-- Teeworlds (cute 2D multiplayer shooter)
-- Neverball (tilt-controlled marble puzzle)
-- Armagetron Advanced (Tron light cycles)
-- Freeciv (open-source Civilization-like)
+
+* 
+**Gaming STCs**: Includes freedoom, vkQuake, OpenArena, and SuperTux.
+
+
+
+---
+
+## Contributing to the Great Hold
+
+Contributions are as precious as refined ore! We seek:
+
+* Hardware modules for new SBC Kindreds.
+
+
+* Lightweight console tools for the long-haul.
+
+
+* Workarounds for the finicky RISC-V logic-cores.
+
+
+
+Ancestors are watching. Keep your iron clean and your code optimized. — DeMoD LLC, The Votann Core, 2026.
+
+---
 
 ## License
 
-Copyright © 2025 DeMoD LLC
+This project is licensed under the BSD 3-Clause License. See the [LICENSE](https://www.google.com/search?q=./LICENSE) file for details.
 
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+```
 
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+---
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+### 2. LICENSE
 
-## Contributing
+```text
+BSD 3-Clause License
 
-Contributions are welcome:
+Copyright (c) 2025-2026, DeMoD LLC
+All rights reserved.
 
-- Board-specific hardware modules (Raspberry Pi, VisionFive 2, etc.)
-- Additional lightweight console tools
-- More Python networking / automation examples
-- Workarounds for riscv64 package build failures
-- Improved cross-compilation documentation
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-Please open issues or pull requests at the project repository.
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
 
-## Acknowledgments
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
 
-Built with NixOS, flakes, home-manager, and the amazing open-source gaming, AI, and embedded communities.
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
 
-Revive old hardware, experiment on RISC-V, or run featherweight systems — enjoy!  
-— DeMoD LLC, December 2025
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+```

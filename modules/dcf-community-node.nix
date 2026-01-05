@@ -4,132 +4,91 @@ with lib;
 
 let
   cfg = config.custom.dcfCommunityNode;
-
-  # Stable TOML generation for DCF Configuration
   tomlFormat = pkgs.formats.toml {};
+  
   configFile = tomlFormat.generate "dcf_config.toml" {
-    # POLYGLOT CONFIG: Defines ID in all expected locations for compatibility
-    node_id = cfg.nodeId;
-    id = cfg.nodeId;
-    mode = "community";
+    node_id = cfg.nodeId; [cite: 63]
+    id = cfg.nodeId; [cite: 64]
+    mode = "community"; [cite: 64]
 
-    # SHIM CONFIGURATION
-    # Corrected to prevent self-serialization errors on port 7777
     shim = {
-      # Target is where the node sends playback data. 
-      # We point this to local loopback 8888 to avoid flooding the main binary port.
-      target = "127.0.0.1:8888"; 
+      # Internal relay: Node sends to itself on the binary port
+      target = "127.0.0.1:7777"; 
     };
 
     network = {
-      gateway_url = "http://api.demod.ltd";
-      discovery_mode = "central";
-      node_type = "community";
+      gateway_url = "http://api.demod.ltd"; [cite: 65]
+      discovery_mode = "central"; [cite: 65]
+      node_type = "community"; [cite: 65]
     };
 
     server = {
-      # Main HydraMesh Binary Protocol (High Performance)
-      bind_udp = "0.0.0.0:7777";
-      # gRPC Control Interface
-      bind_grpc = "0.0.0.0:50051";
-      # Shim/Bridge Interface (JSON/Legacy Support for Games)
+      bind_udp = "0.0.0.0:7777"; [cite: 66]
+      bind_grpc = "0.0.0.0:50051"; [cite: 66]
+      # NEW: Explicitly bind shim listener to all interfaces
       bind_shim = "0.0.0.0:8888"; 
     };
 
     performance = {
-      target_hz = 125;
-      # Bridge mode enables bidirectional traffic for game clients
-      shim_mode = "bridge"; 
+      target_hz = 125; [cite: 67]
+      shim_mode = "bridge"; [cite: 67]
     };
 
-    # Nested blocks for safety/legacy SDK compatibility
-    node = { id = cfg.nodeId; node_id = cfg.nodeId; };
-    dcf = { node_id = cfg.nodeId; };
+    node = { id = cfg.nodeId; node_id = cfg.nodeId; }; [cite: 68]
+    dcf = { node_id = cfg.nodeId; }; [cite: 69]
   };
 
 in {
   options.custom.dcfCommunityNode = {
     enable = mkOption {
       type = types.bool;
-      default = cfg.nodeId != "";
-      description = "Enable the DCF Node service.";
+      default = cfg.nodeId != ""; [cite: 69, 70]
+      description = "Enable the DCF Node."; [cite: 70]
     };
-
     nodeId = mkOption {
       type = types.str;
-      default = "alh477";
-      description = "Node ID from the DCF dashboard.";
+      default = "alh477"; [cite: 71]
+      description = "Node ID from the dashboard."; [cite: 72]
     };
-
-    cpuSet = mkOption { 
-      type = types.nullOr types.str; 
-      default = null;
-      description = "Specific CPU cores to pin the real-time process to (e.g. '0-3').";
-    };
-
-    openFirewall = mkOption { 
-      type = types.bool; 
-      default = true;
-      description = "Automatically open required UDP/TCP ports in the firewall.";
-    };
+    cpuSet = mkOption { type = types.nullOr types.str; default = null; }; [cite: 72]
+    openFirewall = mkOption { type = types.bool; default = true; }; [cite: 73]
   };
 
-  config = mkIf cfg.enable {
-    virtualisation.docker.enable = true;
-
+  config = mkIf cfg.enable { [cite: 74]
+    virtualisation.docker.enable = true; [cite: 74]
     virtualisation.oci-containers = {
-      backend = "docker";
-      
+      backend = "docker"; [cite: 75]
       containers.dcf-sdk = {
-        image = "alh477/dcf-rs:latest";
-        autoStart = true;
-        
-        # Production CMD: Point directly to the generated config
-        cmd = [ "--config" "/tmp/config.toml" ];
-        
-        # EXPOSED PORTS
-        # 7777: HydraMesh Binary (Node-to-Node)
-        # 50051: gRPC (Control/Dashboard)
-        # 8888: Shim Bridge (Game Client Connection)
+        image = "alh477/dcf-rs:latest"; [cite: 76]
+        autoStart = true; [cite: 76]
+        cmd = [ "--config" "/tmp/config.toml" ]; [cite: 77]
+        # UPDATED: Mapping all three ports
         ports = [ 
           "7777:7777/udp" 
-          "50051:50051/tcp"
+          "50051:50051/tcp" 
           "8888:8888/udp" 
-        ];
+        ]; [cite: 78]
         
-        environment = { 
-          RUST_LOG = "info";
-          DCF_SHIM_MODE = "bridge"; # Force bridge mode via ENV as backup
-        };
-
-        volumes = [
-          # Mount generated config to /tmp to bypass read-only root permission locks
-          "${configFile}:/tmp/config.toml:ro"
-        ];
-
-        # REAL-TIME PERFORMANCE OPTIMIZATIONS
+        environment = { RUST_LOG = "info"; }; [cite: 78]
+        volumes = [ "${configFile}:/tmp/config.toml:ro" ]; [cite: 79]
+        
         extraOptions = [
-          "--cap-add=SYS_NICE"      # Allow thread prioritization
-          "--cap-add=NET_RAW"       # Allow raw socket access
-          "--cap-add=IPC_LOCK"      # Prevent memory swapping
-          "--ulimit=rtprio=99:99"   # Real-time priority limit
-          "--ulimit=memlock=-1:-1"  # Unlimited memory locking
-          "--security-opt=no-new-privileges:true"
-          "--cpus=1.0"              # Reserved CPU capacity
-          "--memory=512m"           # Memory ceiling
-        ] ++ lib.optional (cfg.cpuSet != null) "--cpuset-cpus=${cfg.cpuSet}";
+          "--cap-add=SYS_NICE" [cite: 80]
+          "--cap-add=NET_RAW" [cite: 80]
+          "--cap-add=IPC_LOCK" [cite: 80]
+          "--ulimit=rtprio=99:99" [cite: 80]
+          "--ulimit=memlock=-1:-1" [cite: 80]
+          "--security-opt=no-new-privileges:true" [cite: 80]
+          "--cpus=1.0" [cite: 80]
+          "--memory=512m" [cite: 80]
+        ] ++ lib.optional (cfg.cpuSet != null) "--cpuset-cpus=${cfg.cpuSet}"; [cite: 80]
       };
     };
 
-    # FIREWALL CONFIGURATION
-    networking.firewall = mkIf cfg.openFirewall {
-      allowedUDPPorts = [ 
-        7777 # Binary Protocol
-        8888 # Shim/Game Protocol
-      ];
-      allowedTCPPorts = [ 
-        50051 # gRPC
-      ];
+    networking.firewall = mkIf cfg.openFirewall { [cite: 81]
+      # UPDATED: Added 8888 to allowed firewall ports
+      allowedUDPPorts = [ 7777 8888 ]; [cite: 81]
+      allowedTCPPorts = [ 50051 ]; [cite: 82]
     };
   };
 }

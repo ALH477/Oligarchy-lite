@@ -4,22 +4,20 @@ with lib;
 
 let
   cfg = config.custom.dcfCommunityNode;
-
-  # Stable TOML generation for DCF Configuration
   tomlFormat = pkgs.formats.toml {};
-  
-  # Configuration file generation with corrected Shim/Bridge logic
+
+  # Generate the official DCF configuration file
   configFile = tomlFormat.generate "dcf_config.toml" {
-    # POLYGLOT CONFIG: Defines ID in all expected locations for compatibility
+    # Identity & Mode
     node_id = cfg.nodeId;
     id = cfg.nodeId;
     mode = "community";
 
-    # SHIM CONFIGURATION
+    # SHIM/BRIDGE CONFIGURATION
     shim = {
-      # CRITICAL FIX: Point target to internal loopback to avoid external feedback loops.
-      # This relays translated game traffic to the main node process internally.
-      target = "127.0.0.1:7777"; 
+      # Internal Target: The bridge sends translated data to the binary port internally.
+      # This resolves the external loopback errors you were seeing.
+      target = "127.0.0.1:7777";
     };
 
     network = {
@@ -29,22 +27,21 @@ let
     };
 
     server = {
-      # Main HydraMesh Binary Protocol (High Performance)
+      # HydraMesh Binary (Zandronum hitting this causes serialization errors)
       bind_udp = "0.0.0.0:7777";
-      # gRPC Control Interface
+      # gRPC Management
       bind_grpc = "0.0.0.0:50051";
-      # Shim/Bridge Interface (JSON/Legacy Support for Games)
-      # Must explicitly listen on 0.0.0.0 to accept Docker proxy traffic
+      # Dedicated Shim Listener for Zandronum / Legacy Clients
       bind_shim = "0.0.0.0:8888"; 
     };
 
     performance = {
       target_hz = 125;
-      # Bridge mode enables bidirectional traffic for game clients (Zandronum, etc.)
-      shim_mode = "bridge"; 
+      # "bridge" mode is required for bidirectional game traffic
+      shim_mode = "bridge";
     };
 
-    # Nested blocks for safety/legacy SDK compatibility
+    # SDK Compatibility Blocks
     node = { id = cfg.nodeId; node_id = cfg.nodeId; };
     dcf = { node_id = cfg.nodeId; };
   };
@@ -54,26 +51,15 @@ in {
     enable = mkOption {
       type = types.bool;
       default = cfg.nodeId != "";
-      description = "Enable the DCF Node service.";
+      description = "Enable the DCF Community Node.";
     };
-
     nodeId = mkOption {
       type = types.str;
       default = "alh477";
-      description = "Node ID from the DCF dashboard.";
+      description = "Node ID for identification.";
     };
-
-    cpuSet = mkOption { 
-      type = types.nullOr types.str; 
-      default = null;
-      description = "Specific CPU cores to pin the real-time process to (e.g. '0-3').";
-    };
-
-    openFirewall = mkOption { 
-      type = types.bool; 
-      default = true;
-      description = "Automatically open required UDP/TCP ports in the firewall.";
-    };
+    cpuSet = mkOption { type = types.nullOr types.str; default = null; };
+    openFirewall = mkOption { type = types.bool; default = true; };
   };
 
   config = mkIf cfg.enable {
@@ -81,58 +67,45 @@ in {
 
     virtualisation.oci-containers = {
       backend = "docker";
-      
       containers.dcf-sdk = {
         image = "alh477/dcf-rs:latest";
         autoStart = true;
         
-        # Production CMD: Point directly to the generated config
+        # Ensure the container uses the generated production config
         cmd = [ "--config" "/tmp/config.toml" ];
         
-        # EXPOSED PORTS
-        # 7777: HydraMesh Binary (Node-to-Node)
-        # 50051: gRPC (Control/Dashboard)
-        # 8888: Shim Bridge (Game Client Connection) - ADDED
+        # Explicitly map 8888 for the Shim Bridge
         ports = [ 
           "7777:7777/udp" 
-          "50051:50051/tcp"
+          "50051:50051/tcp" 
           "8888:8888/udp" 
         ];
         
-        environment = { 
-          RUST_LOG = "info";
-          # Force bridge mode via ENV as a fail-safe
-          DCF_SHIM_MODE = "bridge"; 
-        };
-
+        environment = { RUST_LOG = "info"; };
+        
         volumes = [
-          # Mount generated config to /tmp to bypass read-only root permission locks
+          # Read-only mount for the config to /tmp
           "${configFile}:/tmp/config.toml:ro"
         ];
 
-        # REAL-TIME PERFORMANCE OPTIMIZATIONS
+        # Real-time Kernel Capabilities
         extraOptions = [
-          "--cap-add=SYS_NICE"      # Allow thread prioritization
-          "--cap-add=NET_RAW"       # Allow raw socket access
-          "--cap-add=IPC_LOCK"      # Prevent memory swapping
-          "--ulimit=rtprio=99:99"   # Real-time priority limit
-          "--ulimit=memlock=-1:-1"  # Unlimited memory locking
+          "--cap-add=SYS_NICE"
+          "--cap-add=NET_RAW"
+          "--cap-add=IPC_LOCK"
+          "--ulimit=rtprio=99:99"
+          "--ulimit=memlock=-1:-1"
           "--security-opt=no-new-privileges:true"
-          "--cpus=1.0"              # Reserved CPU capacity
-          "--memory=512m"           # Memory ceiling
+          "--cpus=1.0"
+          "--memory=512m"
         ] ++ lib.optional (cfg.cpuSet != null) "--cpuset-cpus=${cfg.cpuSet}";
       };
     };
 
-    # FIREWALL CONFIGURATION
+    # Open the host firewall for the new Shim port
     networking.firewall = mkIf cfg.openFirewall {
-      allowedUDPPorts = [ 
-        7777 # Binary Protocol
-        8888 # Shim/Game Protocol - ADDED
-      ];
-      allowedTCPPorts = [ 
-        50051 # gRPC
-      ];
+      allowedUDPPorts = [ 7777 8888 ];
+      allowedTCPPorts = [ 50051 ];
     };
   };
 }
